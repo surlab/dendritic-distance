@@ -10,7 +10,7 @@ Compute the distances between spines using spine ROIs and the average projection
 
 ```bash
 cd ..\documents\code #or similar as relevant for your machine
-git clone git@github.com:cortex-lab/phy.git
+git clone git@github.com:GreggHeller1/dendritic_distance.git
 cd phy
 pip install -r environment.yml
 Conda activate dendritic_distance
