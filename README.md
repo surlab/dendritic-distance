@@ -12,8 +12,10 @@ Compute the distances between spines using spine ROIs and the average projection
 cd ..\documents\code #or similar as relevant for your machine
 git clone git@github.com:GreggHeller1/dendritic_distance.git
 cd phy
-pip install -r environment.yml
+conda env create -f environment.yml
 Conda activate dendritic_distance
+pip install read_roi
+
 ```
 
 3.  should now be installed and the dendritic distance environment should still be activated. 
