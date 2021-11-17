@@ -23,9 +23,9 @@ def infer_dendrite(dend_rois=None, shaft_roi=None, ts_per_roi = 100):
       roi_center_xs.append(np.mean(roi_xs))
       roi_center_ys.append(np.mean(roi_ys))
 
-  num_rois = len(roi_center_ys)
-  dend_ts = np.arange(0,(num_rois+1)*ts_per_roi,1)
-  roi_center_ts = np.arange(ts_per_roi,(num_rois+1)*ts_per_roi,ts_per_roi)
+  #num_rois = len(roi_center_ys)
+  #dend_ts = np.arange(0,(num_rois+1)*ts_per_roi,1)
+  #roi_center_ts = np.arange(ts_per_roi,(num_rois+1)*ts_per_roi,ts_per_roi)
   #dend_ts = np.arange(ts_per_roi,(num_rois-1)*ts_per_roi,1)
   #roi_center_ts = np.arange(0,(num_rois)*ts_per_roi,ts_per_roi)
   #TODOthis shouldn't be an even number of points per ROI, should depend on euclidean distance to next ROI center probably/point on shaft
@@ -36,11 +36,43 @@ def infer_dendrite(dend_rois=None, shaft_roi=None, ts_per_roi = 100):
   #model5 = np.poly1d(np.polyfit(roi_center_xs, roi_center_ys, 5))
 
 
-  model5_x = np.poly1d(np.polyfit(roi_center_ts, roi_center_xs, 5))
-  model5_y = np.poly1d(np.polyfit(roi_center_ts, roi_center_ys, 5))
+  #model5_x = np.poly1d(np.polyfit(roi_center_ts, roi_center_xs, 5))
+  #model5_y = np.poly1d(np.polyfit(roi_center_ts, roi_center_ys, 5))
 
-  dend_xs = model5_x(dend_ts)
-  dend_ys = model5_y(dend_ts)
+  #It wasn't working to just parameterize by T
+  #need to first check which of X or Y has higher varience
+  #then use that one as the x for our best fit line
+  num_steps = 1000
+  dend_ts = np.arange(0, num_steps, 1)
+  if np.var(roi_center_xs) >= np.var(roi_center_ys):
+    #start = min(roi_center_xs)
+    #end = max(roi_center_xs)
+    #extend = int(end-start*.1)
+    #start = start-extend
+    #end = end+extend
+    start = 0
+    end = 512
+    step = (end - start)/num_steps
+    dend_xs = np.arange(start, end, step)
+    model5 = np.poly1d(np.polyfit(roi_center_xs, roi_center_ys, 5))
+    dend_ys = model5(dend_xs)
+  else:
+    #start = min(roi_center_ys)
+    #end = max(roi_center_ys)
+    start = 0
+    end = 512
+    step = (end - start)/num_steps
+    dend_ys = np.arange(start, end, step)
+    model5 = np.poly1d(np.polyfit(roi_center_ys, roi_center_xs, 5))
+    dend_xs = model5(dend_ys)  #then paramterize that line by T (over the whole width, min to max)
+
+
+  #optionally could go back and order the ROI centers, and then re-fit X and Y seperately
+  #this would allow us to deal with curves better, but I think picking the right input dimensiont is the better solution
+  #since it still won't owrk for branch points.
+
+  #dend_xs = model5_x(dend_ts)
+  #dend_ys = model5_y(dend_ts)
   return dend_ts, dend_xs, dend_ys, roi_center_xs, roi_center_ys
 
 
@@ -53,10 +85,10 @@ def spine_location_on_dendrite(spine_roi, dendrite_roi, plot=False):
   roi_center = np.array([np.mean(roi_xs), np.mean(roi_ys)])
 
   #interpolate annotated line
-  den_xs = dendrite_roi['x']
-  den_ys = dendrite_roi['y']
-  dense_den_xs = np.arange(min(den_xs), max(den_xs))
-  dense_den_ys = np.interp(dense_den_xs, den_xs, den_ys)
+  dense_den_xs = dendrite_roi['x']
+  dense_den_ys = dendrite_roi['y']
+  #dense_den_xs = np.arange(min(den_xs), max(den_xs))
+  #dense_den_ys = np.interp(dense_den_xs, den_xs, den_ys)
 
   #compute distances from all points on annotated line to center
   den_coords = np.vstack((dense_den_xs, dense_den_ys)) #<- use this one when not in debug mode

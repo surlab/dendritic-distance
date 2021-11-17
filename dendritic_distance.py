@@ -7,6 +7,7 @@ import os
 
 def main():
     for current_data_dir, dirs, files in os.walk(data_path, topdown=False):
+        print('Attempting to find dendritic distance in: '+str(current_data_dir))
         try:
             kyle_rois, projection_tif, shaft_roi = io.load_all(current_data_dir)
 
@@ -26,7 +27,8 @@ def main():
 
             io.save_den_roi(dendrite_roi, current_data_dir)
         except Exception as E:
-            pass
+            print(E)
+
 
 if __name__=='__main__':
     main()

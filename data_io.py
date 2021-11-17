@@ -16,7 +16,7 @@ def get_paths_from_data_path(data_path):
     rois_zip_path = os.path.join(data_path, '*.zip')
     rois_zip_path = glob.glob(rois_zip_path)[0]
     try:
-        try_path = os.path.join(data_path, '*stabalized.tif')
+        try_path = os.path.join(data_path, '*stabilized.tif')
         projection_tif_path = glob.glob(try_path)[0]
     except Exception as E:
         try_path = os.path.join(data_path, '*.tif')
@@ -82,7 +82,7 @@ def save_distances(spine_dmats, current_data_dir):
     if not(os.path.isdir(file_dir)):
       os.mkdir(file_dir)
     file_path = os.path.join(current_data_dir, subfolder_name, file_name)
-    print(precision)
+    #print(precision)
     np.savetxt(file_path, dmat, delimiter=",", fmt=precision)
 
 
