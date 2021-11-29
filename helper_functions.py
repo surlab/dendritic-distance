@@ -3,77 +3,91 @@ from matplotlib import pyplot as plt
 from scipy.spatial import distance_matrix
 
 
-
-
-def infer_dendrite(dend_rois=None, shaft_roi=None, ts_per_roi = 100):
-  #we parameterized this for T, but this will break if the ROIs are not in the right order...
-  #will just have to look
-  #need a function to parameterise input rois by T as well
-  roi_center_xs = []
-  roi_center_ys = []
-  if shaft_roi:
+def get_dend_path_from_shaft_roi(shaft_roi):
+    roi_center_xs = []
+    roi_center_ys = []
     for name, roi in shaft_roi.items():
       for x, y in zip(roi['x'], roi['y']):
         roi_center_xs.append(x)
         roi_center_ys.append(y)
-  else:
+    return roi_center_xs, roi_center_ys
+
+def get_dend_path_from_dend_rois(dend_rois):
+    roi_center_xs = []
+    roi_center_ys = []
     for dend_roi in dend_rois:
-      roi_xs = dend_roi['x']
-      roi_ys = dend_roi['y']
-      roi_center_xs.append(np.mean(roi_xs))
-      roi_center_ys.append(np.mean(roi_ys))
+        roi_xs = dend_roi['x']
+        roi_ys = dend_roi['y']
+        roi_center_xs.append(np.mean(roi_xs))
+        roi_center_ys.append(np.mean(roi_ys))
+    return roi_center_xs, roi_center_ys
 
-  #num_rois = len(roi_center_ys)
-  #dend_ts = np.arange(0,(num_rois+1)*ts_per_roi,1)
-  #roi_center_ts = np.arange(ts_per_roi,(num_rois+1)*ts_per_roi,ts_per_roi)
-  #dend_ts = np.arange(ts_per_roi,(num_rois-1)*ts_per_roi,1)
-  #roi_center_ts = np.arange(0,(num_rois)*ts_per_roi,ts_per_roi)
-  #TODOthis shouldn't be an even number of points per ROI, should depend on euclidean distance to next ROI center probably/point on shaft
-
-  #print(roi_center_ts)
-  #print(roi_center_xs)
-  #print(roi_center_ys)
-  #model5 = np.poly1d(np.polyfit(roi_center_xs, roi_center_ys, 5))
+def infer_dendrite(dend_rois=None, shaft_roi=None, ts_per_roi = 100):
+    if shaft_roi:
+        roi_center_xs, roi_center_ys = get_dend_path_from_shaft_roi(shaft_roi)
+    else:
+        roi_center_xs, roi_center_ys = get_dend_path_from_dend_rois(dend_rois)
 
 
-  #model5_x = np.poly1d(np.polyfit(roi_center_ts, roi_center_xs, 5))
-  #model5_y = np.poly1d(np.polyfit(roi_center_ts, roi_center_ys, 5))
+        #num_rois = len(roi_center_ys)
+        #dend_ts = np.arange(0,(num_rois+1)*ts_per_roi,1)
+        #roi_center_ts = np.arange(ts_per_roi,(num_rois+1)*ts_per_roi,ts_per_roi)
+        #dend_ts = np.arange(ts_per_roi,(num_rois-1)*ts_per_roi,1)
+        #roi_center_ts = np.arange(0,(num_rois)*ts_per_roi,ts_per_roi)
+        #TODOthis shouldn't be an even number of points per ROI, should depend on euclidean distance to next ROI center probably/point on shaft
 
-  #It wasn't working to just parameterize by T
-  #need to first check which of X or Y has higher varience
-  #then use that one as the x for our best fit line
-  num_steps = 1000
-  dend_ts = np.arange(0, num_steps, 1)
-  if np.var(roi_center_xs) >= np.var(roi_center_ys):
-    #start = min(roi_center_xs)
-    #end = max(roi_center_xs)
-    #extend = int(end-start*.1)
-    #start = start-extend
-    #end = end+extend
-    start = 0
-    end = 512
-    step = (end - start)/num_steps
-    dend_xs = np.arange(start, end, step)
-    model5 = np.poly1d(np.polyfit(roi_center_xs, roi_center_ys, 5))
-    dend_ys = model5(dend_xs)
-  else:
+        #print(roi_center_ts)
+        #print(roi_center_xs)
+        #print(roi_center_ys)
+        #model5 = np.poly1d(np.polyfit(roi_center_xs, roi_center_ys, 5))
+
+
+        #model5_x = np.poly1d(np.polyfit(roi_center_ts, roi_center_xs, 5))
+        #model5_y = np.poly1d(np.polyfit(roi_center_ts, roi_center_ys, 5))
+
+        #It wasn't working to just parameterize by T
+        #need to first check which of X or Y has higher varience
+        #then use that one as the x for our best fit line
+    num_steps = 1000
+    if np.var(roi_center_xs) >= np.var(roi_center_ys):
+        #start = min(roi_center_xs)
+        #end = max(roi_center_xs)
+        #extend = int(end-start*.1)
+        #start = start-extend
+        #end = end+extend
+        start = 0
+        end = 512
+        step = (end - start)/num_steps
+        dend_xs = np.arange(start, end, step)
+        model5 = np.poly1d(np.polyfit(roi_center_xs, roi_center_ys, 5))
+        dend_ys = model5(dend_xs)
+        #we want to constrain both the x and y values to the pixels limitations of the image
+        mask = np.logical_and(dend_ys>start,dend_ys<end)
+        dend_ys = dend_ys[mask]
+        dend_xs = dend_xs[mask]
+    else:
     #start = min(roi_center_ys)
     #end = max(roi_center_ys)
-    start = 0
-    end = 512
-    step = (end - start)/num_steps
-    dend_ys = np.arange(start, end, step)
-    model5 = np.poly1d(np.polyfit(roi_center_ys, roi_center_xs, 5))
-    dend_xs = model5(dend_ys)  #then paramterize that line by T (over the whole width, min to max)
+        start = 0
+        end = 512
+        step = (end - start)/num_steps
+        dend_ys = np.arange(start, end, step)
+        model5 = np.poly1d(np.polyfit(roi_center_ys, roi_center_xs, 5))
+        dend_xs = model5(dend_ys)  #then paramterize that line by T (over the whole width, min to max)
+        #we want to constrain both the x and y values to the pixels limitations of the image
+        mask = np.logical_and(dend_xs>start,dend_xs<end)
+        dend_ys = dend_ys[mask]
+        dend_xs = dend_xs[mask]
 
+    dend_ts = np.arange(0, len(dend_xs), 1)
 
-  #optionally could go back and order the ROI centers, and then re-fit X and Y seperately
-  #this would allow us to deal with curves better, but I think picking the right input dimensiont is the better solution
-  #since it still won't owrk for branch points.
+    #optionally could go back and order the ROI centers, and then re-fit X and Y seperately
+    #this would allow us to deal with curves better, but I think picking the right input dimensiont is the better solution
+    #since it still won't owrk for branch points.
 
-  #dend_xs = model5_x(dend_ts)
-  #dend_ys = model5_y(dend_ts)
-  return dend_ts, dend_xs, dend_ys, roi_center_xs, roi_center_ys
+    #dend_xs = model5_x(dend_ts)
+    #dend_ys = model5_y(dend_ts)
+    return dend_ts, dend_xs, dend_ys, roi_center_xs, roi_center_ys
 
 
 
@@ -194,7 +208,66 @@ def dendritic_distance(spine_stem_t, dendrite_roi):
         my_d_mat[i,j] = dist_along_dend
     return my_d_mat
 
+def stem_length(spine_coords):
+    stem_lengths = []
+    for i, _ in enumerate(spine_coords['centers']):
+        roi_center = spine_coords['centers'][i]
+        spine_stem = spine_coords['spine_stems'][i]
 
+        stem_length = np.sqrt((spine_stem[0] - roi_center[0])**2+(spine_stem[1] - roi_center[1])**2)
+        stem_lengths.append(stem_length)
+    return stem_lengths
+
+def dendrite_residual(dend_rois, dendrite_roi):
+    dendrite_residuals = []
+    dense_den_xs = dendrite_roi['x']
+    dense_den_ys = dendrite_roi['y']
+    den_coords = np.vstack((dense_den_xs, dense_den_ys)) #<- use this one when not in debug mode
+    num_elements = np.shape(den_coords)[1]
+
+    roi_center_xs, roi_center_ys = get_dend_path_from_dend_rois(dend_rois)
+
+    for roi_center_x, roi_center_y in zip(roi_center_xs, roi_center_ys):
+        roi_center = np.array([np.mean(roi_center_x), np.mean(roi_center_y)])
+        #den_coords = np.vstack((np.array(den_xs), np.array(den_ys)))
+
+        roi_centers = np.tile(roi_center, (num_elements,1)).T
+        diff = den_coords - roi_centers#, (1, num_elements))#.reshape(2,num_elements)
+        res_sq = np.linalg.norm(diff, axis=0)
+
+        #find index of minimum distance
+        min_dist = np.argmin(res_sq)#this is the index where the distance was minimized, this also corresponds to the t that we used to parameterize the curve
+        spine_stem_t = min_dist
+
+        #<<<<<<<<<<<<<<<<<<
+        #grab the appropriate location on the dendrite
+        closest_point = den_coords[:,min_dist]
+
+        residual_length = np.sqrt((closest_point[0] - roi_center[0])**2+(closest_point[1] - roi_center[1])**2)
+        dendrite_residuals.append(residual_length)
+    return dendrite_residuals
+
+def stem_angle(spine_coords, spine_stem_t, dendrite_roi):
+    stem_angles = []
+    for i, _ in enumerate(spine_coords['centers']):
+        roi_center = spine_coords['centers'][i]
+        spine_stem = spine_coords['spine_stems'][i]
+
+        #grab the next point alonge the dendrite
+        t = spine_stem_t[i] +1
+        den_x = dendrite_roi['x'][t]
+        den_y = dendrite_roi['y'][t]
+
+        #subtract the spine stem coordinates to get vectors from the origin for directions to the other 2
+        spine_vect = roi_center - spine_stem
+        den_vect = np.array([den_x,den_y]) - spine_stem
+
+        #taken from https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python
+        c = np.dot(den_vect,spine_vect)/np.linalg.norm(den_vect)/np.linalg.norm(spine_vect) # -> cosine of the angle
+        stem_angle = np.arccos(np.clip(c, -1, 1))
+
+        stem_angles.append(stem_angle)
+    return stem_angles
 
 
 

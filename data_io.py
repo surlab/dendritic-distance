@@ -5,6 +5,7 @@ import os
 import PIL
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 
 
 ################
@@ -67,7 +68,11 @@ def seperate_kyle_rois(kyle_rois):
 #################
 
 def convert_pixels_to_um(np_array):
-    return np_array * .09  #um/pixel
+    try:
+        um = np_array * .09 #um/pixel
+    except Exception as E:
+        um = np.array(np_array) * .09 #um/pixel
+    return um
 
 def save_distances(spine_dmats, current_data_dir):
 #what all do we want to save?
@@ -155,5 +160,51 @@ def save_den_roi(dendrite_roi, current_data_dir):
         os.mkdir(file_dir)
     file_path = os.path.join(current_data_dir, subfolder_name, file_name)
     np.savetxt(file_path, array, delimiter=",", fmt=precision)
+
+
+
+def save_stem_stats(current_data_dir, **kwargs):
+    DF = pd.DataFrame(kwargs)
+    file_name = 'stem_stats.csv'
+    file_dir = os.path.join(current_data_dir, subfolder_name)
+    if not(os.path.isdir(file_dir)):
+        os.mkdir(file_dir)
+    file_path = os.path.join(current_data_dir, subfolder_name, file_name)
+
+    DF.to_csv(file_path, index=False)
+
+
+def save_summary_plots(**kwargs):
+    for name, stat_dict in kwargs.items():
+        save_summary_plot(stat_dict, name=name)
+
+
+def save_summary_plot(stat_dict, name=''):
+    plot_dict = {
+        'all':[],
+        'max':[],
+        'median':[]
+    }
+    all_stat = []
+    max_stat = []
+    med_stat = []
+    for key, stat_list in stat_dict.items():
+        plot_dict['all'].extend(stat_list)
+        plot_dict['max'].append(max(stat_list))
+        plot_dict['median'].append(np.median(stat_list))
+
+    fig, axs = plt.subplots(3, 1, figsize=(15,15))
+    for i, (stat_type, stat_list) in enumerate(plot_dict.items()):
+        axs[i].hist(stat_list)
+        axs[i].set_xlabel('length')
+        axs[i].set_ylabel('count')
+        axs[i].set_title(name+' '+stat_type)
+
+    file_name = name+'_summary_histograms.png'
+    if not(os.path.isdir(collect_images_at_path)):
+        os.mkdir(collect_images_at_path)
+    file_path = os.path.join(collect_images_at_path, file_name)
+    plt.savefig(file_path)
+
 
 
