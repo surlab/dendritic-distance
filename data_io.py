@@ -12,39 +12,69 @@ import pandas as pd
 #data in
 #################
 
+#whats the better way to do this? we were trying to seperate getting the paths from loading the data
+#for using in colab... can we use CWD to make things compatible?
+#make everything relative to the base directory?
+#and is it better to get all the paths or should they be treated seperately
+#maybe they should be initialized with the classes that depend on them?
+#one of the only reasons this caught my attention is because now I need to go back and change so it reads a zip...different type of input
+#but it seems silly to handle this in a different functino than the one that gets the path since it already knows they are zips
+#^^^ this would actually be a super simple function, just try, except ... doesn't depend on the path at all in that case
+#but its a bit tricky since the roi path kinda depends on exlcuding the shaft path
+##also for this use case it doesn't really matter that much but for others it seems like it would
+#would a function that loads an roi with a keyword help? that would apply to both kinds?
+#or make it on object that has these as attributes and then uses the load functions?
+
 def get_paths_from_data_path(data_path):
+
+    spine_roi_path = None
+    shaft_roi_path = None
 
     rois_zip_path = os.path.join(data_path, '*.zip')
     rois_zip_path = glob.glob(rois_zip_path)[0]
+    for path in rois_zip_path:
+        if 'dend' in rois_zip_path:
+            if not(shaft_roi_path):
+                shaft_roi_path = path
+        elif not(spine_roi_path):
+            spine_roi_path = path
+
     try:
         try_path = os.path.join(data_path, '*stabilized.tif')
         projection_tif_path = glob.glob(try_path)[0]
     except Exception as E:
         try_path = os.path.join(data_path, '*.tif')
         projection_tif_path = glob.glob(try_path)[0]
-    shaft_roi_path = None
-    try:
-        try_path = os.path.join(data_path, '*shaft.roi')
-        shaft_roi_path = glob.glob(try_path)[0]
-    except Exception as E:
-        pass
 
-    return rois_zip_path, projection_tif_path, shaft_roi_path
+    if not(shaft_roi_path):
+        try:
+            try_path = os.path.join(data_path, '*shaft.roi')
+            shaft_roi_path = glob.glob(try_path)[0]
+        except Exception as E:
+            pass
+
+    return spine_roi_path, projection_tif_path, shaft_roi_path
 
 
 def load_all(data_path):
 
     rois_zip_path, projection_tif_path, shaft_roi_path = get_paths_from_data_path(data_path)
 
-    kyle_rois = read_roi_zip(rois_zip_path)
+    kyle_rois = _read_roi(rois_zip_path)
 
     projection_tif = PIL.Image.open(projection_tif_path)
     shaft_roi = None
     if shaft_roi_path:
-        shaft_roi = read_roi_file(shaft_roi_path)
+        shaft_roi = _read_roi(shaft_roi_path)
 
     return kyle_rois, projection_tif, shaft_roi
 
+def _read_roi(roi_path):
+    try:
+        roi = read_roi_file(roi_path)
+    except exception as E:
+        roi = read_roi_zip(roi_path)
+    return roi
 
 def seperate_kyle_rois(kyle_rois):
   spine_rois = []

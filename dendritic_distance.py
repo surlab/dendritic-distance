@@ -20,10 +20,10 @@ def main():
 
             dendrite_roi = {}
             dendrite_roi['t'], dendrite_roi['x'], dendrite_roi['y'], roi_center_xs, roi_center_ys = hf.infer_dendrite(dend_rois=dend_rois, shaft_roi=shaft_roi)
-            spine_coords, spine_stem_t = hf.spine_stem_for_all_rois(spine_rois, dendrite_roi)
+            spine_coords, spine_stem_t = hf.spine_stem_for_all_rois(spine_rois, dend_rois, dendrite_roi)
 
             spine_dmats = hf.euclidian_dmats(spine_coords)
-            dend_d_mat = hf.dendritic_distance(spine_stem_t, dendrite_roi)
+            dend_d_mat = hf.dendritic_distance_matrix(spine_stem_t, dendrite_roi)
 
             spine_dmats['dendritic_distance'] = dend_d_mat
 
