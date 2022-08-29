@@ -25,16 +25,10 @@ cd path/to/dendritic_distance_installation
 python dendritic_distance.py
 ```
 
-### Dependencies
 
-For your information, here are the Python dependencies of dendritic_distance  (as found in `environment.yml`):
-
-```
-
-```
 
 ## Usage instructions
-Input Files:
+### Input Files:
 The code expects to find a directory or tree of nested directories where some the following files in each directory:
 1. 1 file whose name includes the string "dend." that contains annotations of the dendrites and branch points
 1. 1 file whose name includes the string ".zip" and not the string ".dend" that contains the annotations of rois for each spine head and corresponding nearest dendritic segment
@@ -42,12 +36,12 @@ The code expects to find a directory or tree of nested directories where some th
 
 For more information on the expected annotations see annotations.md
 
-Rename "default_config.py" to "config.py"
-Change the paths in "config.py" as desired
+### Usage steps
+1. Rename "default_config.py" to "config.py" (First time only)
+1. Change the paths in "config.py" as desired
+1. In a terminal with the conda environment active, run "python dendritic_distance.py"
 
-In a terminal with the conda environment active, run "python dendritic_distance.py"
-
-Output Files:
+### Output Files:
 Each session directory should contain a subdirectory (named from "config.py") containing the following files.
 N refers to the unmber of annotated spines. All distance matricies should be symmetric with 0s along the diagonal, with the ixjth entry representing the distance from the ith spine to the jth spine. 
 1. "dendritic_distance.csv" - CSV with NxN matrix of the distance between spines measured following the dendrite. The spine neck and head are not included (measurement is taken from the neck junction with the dendtire, as inferred by the closest distance to the spine ROI. 
@@ -69,5 +63,7 @@ Some summary files are also produced, each consists of a pair of files. 1 contai
 
 Please see "demo_data/summary_plots" for examples
 
+#Credit
 
+This code was created for the surlab at MIT by Gregg Heller. It was created using images provided by Dr. Kyle Jenks. 
 
