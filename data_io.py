@@ -182,7 +182,7 @@ def save_plot(spines, all_segments, current_data_dir, dmats):
                  [spines[i].spine_center_xy[1], spines[j].spine_center_xy[1]],
                  color='m',
                  label =eu_label)
-        plt.v
+        plt.legend()
 
     except Exception as E:
         raise(E)
