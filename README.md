@@ -63,7 +63,7 @@ Some summary files are also produced, each consists of a pair of files. 1 contai
 
 Please see "demo_data/summary_plots" for examples
 
-#Credit
+# Credit
 
-This code was created for the surlab at MIT by Gregg Heller. It was created using images provided by Dr. Kyle Jenks. 
+This code was created for the surlab at MIT by Gregg Heller. It was created using images provided by Kyle Jenks, who also helped with inspiration and validation. 
 
