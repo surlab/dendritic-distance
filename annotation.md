@@ -1,8 +1,8 @@
-#Annotation
+# Annotation
 
-##Additional details about the required annotations
+Additional details about the required annotations
 
-##dendrite annotation file
+## dendrite annotation file
 1 file whose name includes the string "dend." that contains annotations of the dendrites and branch points
 
 Currently this file should be produced using ImageJ to generate ROIs (if necessary it can easily be adapted to other formats). 
@@ -18,7 +18,7 @@ Please see "demo_data" for examples of "*dend.zip and "*dend.roi" dendrite annot
 
 
 
-##spine annotation file
+## spine annotation file
 1 file whose name includes the string ".zip" and not the string ".dend" that contains the annotations of rois for each spine head and corresponding nearest dendritic segment
 
 Currently this file should be produced using ImageJ to generate ROIs (if necessary it can easily be adapted to other formats). 
