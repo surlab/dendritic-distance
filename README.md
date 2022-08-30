@@ -54,14 +54,28 @@ N refers to the unmber of annotated spines. All distance matricies should be sym
 
 Please see "demo_data" for examples
 
-Some summary files are also produced, each consists of a pair of files. 1 containing histograms of the relevant statsitic, and another with directories and values of the highest 5 and lowest 5 sessions for each stastic. 
+Some summary files are also produced, each with a datestring corresponding to when the code finished running
+1. processed_check_directories_datestring.json - this contains a list all the directories that were sucessfully processed 
+1. missing_annotation_check_directories_datestring.json - This file contains a list of directories that did not have the 3 necessary files to run the algorithm.
+1. failed_list_check_directories_datestring.json - This file contains a list of the directories that failed to run the algorithm (possibly for other reasons than missing files, not having 3 dendritic segments associated with a branch point is a common one)
+1. asymetric_list_check_directories_datestring.json - the distance matricies should all be symmetrical. If they are not, directories will be listed here. This file will also contain sessions where not all dendritic segments are connected and therefore Nans are found in the distance matricies. 
+
+The remaining summaries each consist of a pair of files. 1 png containing histograms of the relevant statsitic, and 1 JSON with directories and values of the highest 5 and lowest 5 sessions for each stastic. 
 1. Neck length - The distance from the mean of the spine ROI to the neck junction with the dendtite segment. Generally we are concerend about neck lengths that are too long indicating the spine was not mapped to the correct dendritic segment.
 1. Neck Angle - The angle between the dendritig segment and the spine neck. A Neck far from 1.5 (radians) can indicate that the spine was not mapped to the correct dendritic segment
 1. Dendrite Residual - The distance from the mean of the "dendrite ROI" to the nearest point on the nearest dendritic segment. Large Dendrite residuals can indicate that the same image was not used for both annotations, a dendritic segment was not annotated, or that the spine ROIs are not ordered properly (one may be missing causing an offset and spine ROIs to be inferred as dendrite ROIs
 1. Spine Circumference - sum of all the outer segments in the spine ROI. If this is excessively large it could indicate that the wrong pixel/um mapping was used (perhaps a different objective or pixel size was chosen) or that the spine ROIs are not ordered properly (one may be missing causing an offset and dendrite ROIs to be inferred as spine ROIs which have a smaller cicumferance)
-1. asymmetry - the distance matricies should all be symmetrical. If they are not, directories will be listed here (no associated histograms)
+
 
 Please see "demo_data/summary_plots" for examples
+
+# Quality Control (QC)
+
+It is important that you QC the results of this code and do not trust it blindly. Here is my process for QC.
+1. Look through the pngs in annotated images. The dendrite should be annotated appropriately, the spine ROIs should look like spines (not background or dendritic ROIs) and spines should be connected to the appropriate dendritic segment. Pay attention near branch poits. 
+1. Look through the "missing_annotation" and "failed" JSONs. If there are sesssion directories, check them for what may have gone wrong, look for all the files, check the branch points for 3 dendritic segments, etc. (this may involve re-running the code on that directory alone to do some debugging.)
+1. look at the statistics plots and Jsons. The histograms should give you a feel for what are extreme outliers. I normally closely inspect the sessions for the 5 "max_all" directories for each statistic. If I find errors in all of them it is necessarry to rerun the code on all of the images to regenerate the top 5. (Maybe I should provide afull list ordered so the user can choose when to stop?. "Max all" is typically the most useful, although pixel size errors would show up in the median statistic, and it can be good to check the minimum neck angles (should just take diff from pi/2 here...). 
+1. Correct the ROIs if necessary and then re-run (the easiest way to do this can be to delete the dendritic_distance subfolder, and then re-run while leaving the flag "re-run = false" in the config this will skip andirectories that already contain the dendritic_distance subfolder). 
 
 # Credit
 
