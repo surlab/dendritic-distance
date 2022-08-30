@@ -1,1 +1,13 @@
+*.egg-info
+data
 config.py
+
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+.DS_Store
+.ipynb_checkpoints
