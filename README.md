@@ -30,7 +30,7 @@ python dendritic_distance.py
 ## Usage instructions
 ### Input Files:
 The code expects to find a directory or tree of nested directories where some the following files in each directory:
-1. 1 file whose name includes the string "dend." that contains annotations of the dendrites and branch points
+1. 1 file whose name includes the string "dend" that contains annotations of the dendrites and branch points
 1. 1 file whose name includes the string ".zip" and not the string ".dend" that contains the annotations of rois for each spine head and corresponding nearest dendritic segment
 1. A file whose name includes the string '.tif' that contains the average image from which the ROIs were generated (necessary only to produce QC images, not to compute the distance itself, but this is HIGHLY recomended as a way to validate both the annotations and the algorithm). If there are multiple filenames with '.tif' then the code will preferentially select a tif that includes the string 'stabalized.tif'
 
