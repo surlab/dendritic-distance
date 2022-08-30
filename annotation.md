@@ -1,6 +1,6 @@
 # Annotation
 
-Additional details about the required annotations
+Additional details about the required annotations. For detailed instructions on how to generate these annotations using Fiji (ImageJ) please see the PDF document "ROI selection."
 
 ## dendrite annotation file
 1 file whose name includes the string "dend." that contains annotations of the dendrites and branch points
