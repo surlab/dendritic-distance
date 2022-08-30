@@ -43,7 +43,7 @@ For more information on the expected annotations see annotations.md
 
 ### Output Files:
 Each session directory should contain a subdirectory (named from "config.py") containing the following files.
-N refers to the unmber of annotated spines. All distance matricies should be symmetric with 0s along the diagonal, with the ixjth entry representing the distance from the ith spine to the jth spine. 
+N refers to the unmber of annotated spines. All distance matricies should be symmetric with 0s along the diagonal, with the ixjth entry representing the distance from the ith spine to the jth spine. If there is no dendritic path between the two spines (dendritic segments are not connected within the frame) then the distance will be nan. 
 1. "dendritic_distance.csv" - CSV with NxN matrix of the distance between spines measured following the dendrite. The spine neck and head are not included (measurement is taken from the neck junction with the dendtire, as inferred by the closest distance to the spine ROI. 
 1. "euclidian distance between Dendrite-Neck Junctions.csv" - CSV with NxN matrix, same as above (measures from neck junction to neck junction) except distance is measured "as the crow flies," euclidian. (Assumes same Z plane)
 1. "euclidian distance between Spine Centers.csv" - same as above, but measures euclidan distance from the mean of each spine ROI
