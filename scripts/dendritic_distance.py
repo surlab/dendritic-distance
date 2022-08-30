@@ -1,5 +1,5 @@
 from src import helper_functions as hf
-from src.config import data_path
+from src import config as cfg
 from src import data_io as io
 import os
 
@@ -10,13 +10,9 @@ def main():
     failed_list = []
     missing_annotation = []
     processed = []
-    for current_data_dir, dirs, files in os.walk(data_path, topdown=False):
-        branch_csv_path = os.path.join(
-            current_data_dir, "dendritic_distance", "seperated_by_branch_point.csv"
-        )
-        if not ("dendritic_distance" in current_data_dir) and not (
-            os.path.exists(branch_csv_path)
-        ):
+    for current_data_dir, dirs, files in os.walk(cfg.data_path, topdown=False):
+        unprocessed = not (cfg.subfolder_name in current_data_dir)
+        if cfg.re_run or unprocessed:
             print("Attempting to find dendritic distance in: " + str(current_data_dir))
             try:
                 kyle_rois, projection_tif, shaft_roi = io.load_all(current_data_dir)

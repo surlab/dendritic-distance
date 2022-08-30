@@ -2,8 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.spatial import distance_matrix
 
-from config import subfolder_name, collect_images_at_path, precision
-
 
 def endpoints(xs, ys):
     start_coords = np.array((xs[0], ys[0]))

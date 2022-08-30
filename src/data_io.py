@@ -1,4 +1,5 @@
-from config import subfolder_name, collect_images_at_path, precision, conversion_factor
+
+from src import config as cfg
 
 # should probably import this whole thing and use the namespace...
 from read_roi import read_roi_file, read_roi_zip
@@ -16,18 +17,6 @@ from datetime import datetime as dt
 # data in
 #################
 
-# whats the better way to do this? we were trying to seperate getting the paths from loading the data
-# for using in colab... can we use CWD to make things compatible?
-# make everything relative to the base directory?
-# and is it better to get all the paths or should they be treated seperately
-# maybe they should be initialized with the classes that depend on them?
-# one of the only reasons this caught my attention is because now I need to go back and change so it reads a zip...different type of input
-# but it seems silly to handle this in a different functino than the one that gets the path since it already knows they are zips
-# ^^^ this would actually be a super simple function, just try, except ... doesn't depend on the path at all in that case
-# but its a bit tricky since the roi path kinda depends on exlcuding the shaft path
-##also for this use case it doesn't really matter that much but for others it seems like it would
-# would a function that loads an roi with a keyword help? that would apply to both kinds?
-# or make it on object that has these as attributes and then uses the load functions?
 
 
 def get_paths_from_data_path(data_path):
@@ -100,9 +89,9 @@ def seperate_kyle_rois(kyle_rois):
 
 def convert_pixels_to_um(np_array):
     try:
-        um = np_array * conversion_factor  # um/pixel
+        um = np_array * cfg.conversion_factor  # um/pixel
     except Exception as E:
-        um = np.array(np_array) * conversion_factor  # um/pixel
+        um = np.array(np_array) * cfg.conversion_factor  # um/pixel
     return um
 
 
@@ -123,11 +112,11 @@ def save_distances(spine_dmats, current_data_dir):
             dmat = pmat
 
         file_name = str(key) + ".csv"
-        file_dir = os.path.join(current_data_dir, subfolder_name)
+        file_dir = os.path.join(current_data_dir, cfg.subfolder_name)
         if not (os.path.isdir(file_dir)):
             os.mkdir(file_dir)
-        file_path = os.path.join(current_data_dir, subfolder_name, file_name)
-        np.savetxt(file_path, dmat, delimiter=",", fmt=precision)
+        file_path = os.path.join(current_data_dir, cfg.subfolder_name, file_name)
+        np.savetxt(file_path, dmat, delimiter=",", fmt=cfg.precision)
 
 
 def save_plot(spines, all_segments, current_data_dir, dmats):
@@ -213,19 +202,19 @@ def save_plot(spines, all_segments, current_data_dir, dmats):
 
     # save it local with the other data
     file_name = "annotated_dendrite.png"
-    file_dir = os.path.join(current_data_dir, subfolder_name)
+    file_dir = os.path.join(current_data_dir, cfg.subfolder_name)
     if not (os.path.isdir(file_dir)):
         os.mkdir(file_dir)
-    file_path = os.path.join(current_data_dir, subfolder_name, file_name)
+    file_path = os.path.join(current_data_dir, cfg.subfolder_name, file_name)
     plt.savefig(file_path)
 
-    if collect_images_at_path:
+    if cfg.collect_images_at_path:
         cell_dir, FOV_name = os.path.split(current_data_dir)
         _, cell_name = os.path.split(cell_dir)
         file_name = cell_name + "_" + FOV_name + "_annotated_dendrite.png"
-        if not (os.path.isdir(collect_images_at_path)):
-            os.mkdir(collect_images_at_path)
-        file_path = os.path.join(collect_images_at_path, file_name)
+        if not (os.path.isdir(cfg.collect_images_at_path)):
+            os.mkdir(cfg.collect_images_at_path)
+        file_path = os.path.join(cfg.collect_images_at_path, file_name)
         plt.savefig(file_path)
 
 
@@ -235,20 +224,20 @@ def save_den_roi(dendrite_roi, current_data_dir):
     array = np.array([den_xs, den_ys])
 
     file_name = "dendrite_roi.csv"
-    file_dir = os.path.join(current_data_dir, subfolder_name)
+    file_dir = os.path.join(current_data_dir, cfg.subfolder_name)
     if not (os.path.isdir(file_dir)):
         os.mkdir(file_dir)
-    file_path = os.path.join(current_data_dir, subfolder_name, file_name)
-    np.savetxt(file_path, array, delimiter=",", fmt=precision)
+    file_path = os.path.join(current_data_dir, cfg.subfolder_name, file_name)
+    np.savetxt(file_path, array, delimiter=",", fmt=cfg.precision)
 
 
 def save_stem_stats(current_data_dir, **kwargs):
     DF = pd.DataFrame(kwargs)
     file_name = "stem_stats.csv"
-    file_dir = os.path.join(current_data_dir, subfolder_name)
+    file_dir = os.path.join(current_data_dir, cfg.subfolder_name)
     if not (os.path.isdir(file_dir)):
         os.mkdir(file_dir)
-    file_path = os.path.join(current_data_dir, subfolder_name, file_name)
+    file_path = os.path.join(current_data_dir, cfg.subfolder_name, file_name)
 
     DF.to_csv(file_path, index=False)
 
@@ -315,7 +304,7 @@ def save_summary_plot(stat_dict, name=""):
 
     timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
     file_name = name + "_summary_histograms_" + timestamp + ".png"
-    summary_path = os.path.join(collect_images_at_path, "summary_plots")
+    summary_path = os.path.join(cfg.collect_images_at_path, "summary_plots")
     if not (os.path.isdir(summary_path)):
         os.makedirs(summary_path)
     file_path = os.path.join(summary_path, file_name)
@@ -339,7 +328,7 @@ def save_list(**kwargs):
     for key, value in kwargs.items():
         timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
         file_name = key + "_check_directories_" + timestamp + ".json"
-        summary_path = os.path.join(collect_images_at_path, "summary_plots")
+        summary_path = os.path.join(cfg.collect_images_at_path, "summary_plots")
         file_path = os.path.join(summary_path, file_name)
         if not (os.path.isdir(summary_path)):
             os.makedirs(summary_path)
