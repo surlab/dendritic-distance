@@ -10,7 +10,7 @@ The order of ROIs does not matter for this file since they are well identified b
 Each dendritic segment should be marked with a segmented line ROI in imageJ
 Each branch point should be marked with an Oval ROI in imageJ
 
-It is recomended to attempt to annotate 3 dendrite segments connecting to each Oval markde branch point, even if one of the segments contains no spines or is very tiny before moving out of focus or off screen. This is so that branch angle calculations are remain accurate.
+It is ~~recomended to~~ currently required that 3 dendrite segments connect to each Oval marked branch point, even if one of the segments contains no spines or is very tiny before moving out of focus or off screen. This could be remedied in the future by applying a threshold distance at which a segment cannot be connected to a branch. 
 
 It is also recomended to annotate all segments in view even if they have no spines, aren't on the branch of interest, or may be axons. This will help assess accuracy if we move to an automated algorithm for identifying segments in the future. 
 
