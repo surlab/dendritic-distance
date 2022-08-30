@@ -1,6 +1,6 @@
-import helper_functions as hf
-from config import data_path
-import data_io as io
+from src import helper_functions as hf
+from src.config import data_path
+from src import data_io as io
 import os
 
 

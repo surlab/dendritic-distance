@@ -38,7 +38,7 @@ def get_paths_from_data_path(data_path):
     rois_zip_path = os.path.join(data_path, "*.*")
     rois_zip_path = glob.glob(rois_zip_path)
     for path in rois_zip_path:
-        if "dend." in path:
+        if "dend" in path:
             if not (shaft_roi_path):
                 shaft_roi_path = path
         elif not (spine_roi_path) and ".zip" in path:
