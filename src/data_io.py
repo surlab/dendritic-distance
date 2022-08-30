@@ -1,5 +1,12 @@
 
-from src import config as cfg
+import logging
+
+try:
+    from src import config as cfg
+except ImportError as E:
+    logging.warning('No custom config found, using default config instead')
+    from src import default_config as cfg
+
 
 # should probably import this whole thing and use the namespace...
 from read_roi import read_roi_file, read_roi_zip
