@@ -1,6 +1,6 @@
 data_path = r"/Users/Gregg/Dropbox (MIT)/2021 Gregg rotation/kyle_data"
 
-collect_images_at_path = r"/Users/Gregg/Documents/MIT/SUR_lab/2021 Gregg rotation/annotated_images"
+collect_summary_at_path = "demo_results"
 #Images and plots will be placed here to easily perform a basic QC
 #and ensure that that distance matricies reflect the desired values
 
@@ -8,7 +8,7 @@ collect_images_at_path = r"/Users/Gregg/Documents/MIT/SUR_lab/2021 Gregg rotatio
 re_run = False
 #This will skip any directories that already contain the dendritic distance subfolder named VVV
 
-subfolder_name = 'dendritic_distance'
+subfolder_name = 'demo_dendritic_distance'
 #within each session directory, this subfolder will be created and contain
 #the detailed output of the sucessful algorithm (distance matricies, and other measurements)
 

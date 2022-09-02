@@ -253,7 +253,7 @@ class Spine:
         den_len = np.linalg.norm(den_vect) + 0.001
         spine_len = np.linalg.norm(spine_vect) + 0.001
         angle = dot / den_len / spine_len  # -> cosine of the angle
-        self.neck_angle = np.arccos(np.clip(angle, -1, 1))
+        self.neck_angle = np.abs(np.arccos(np.clip(angle, -1, 1)) - np.pi/2)
 
         self.area_of_roi = 0  # this seems nontrivial... saving for later
         self.estimated_volume = 0
@@ -408,12 +408,13 @@ def dendritic_distance_matrix(spines):
     return my_d_mat, b_mat
 
 
-def euclidian_dmats(spines):
+def euclidian_dmats(spines, visual=False):
     # produce pairwise distance matrix for both euclidean and dendritic distance
     spine_dmats = {}
     plot_types = spines[0].dist_points_dict.keys()
     num_plots = len(plot_types)
-    _, plots = plt.subplots(1, num_plots, figsize=(15, 4))
+    if visual:
+        _, plots = plt.subplots(1, num_plots, figsize=(15, 4))
     for i, plot_type in enumerate(plot_types):
         coords = []
         for spine in spines:
@@ -425,7 +426,8 @@ def euclidian_dmats(spines):
 
         new_key = "euclidian distance between " + plot_type + "s"
         spine_dmats[new_key] = d_mat
-        plots[i].imshow(d_mat)
-        plots[i].title.set_text(new_key)
+        if visual:
+            plots[i].imshow(d_mat)
+            plots[i].title.set_text(new_key)
 
     return spine_dmats

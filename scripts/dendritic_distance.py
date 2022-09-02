@@ -50,7 +50,7 @@ def main():
                     spine_dmats["seperated_by_branch_point"] = b_mat.astype(int)
 
                     io.save_distances(spine_dmats, current_data_dir)
-                    io.save_plot(spines, all_segments, current_data_dir, spine_dmats)
+                    io.make_and_save_plot(current_data_dir, all_segments, spines, spine_dmats)
 
                     # io.save_den_roi(dendrite_roi, current_data_dir) this would need to account for branching
                     for check, value_list in sanity_checks.items():
