@@ -2,21 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0990b2f9-de53-488a-92f3-8f0be74016bb" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/environment.yml" beforeDir="false" afterPath="$PROJECT_DIR$/environment.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/branch/RoiSet.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/branch/RoiSet_dend.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/branch/day 10 cell 3 apical dendrite 3-2.tif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/branch_2/RoiSet.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/branch_2/RoiSet_dend.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/branch_2/day 3 cell 2 basal dendrite 1-2.tif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/no_branch/RoiSet.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/no_branch/RoiSet_dend.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/no_branch/day 11 cell 2 basal dendrite 1-3.tif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/demo_data/test.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/dendritic_distance.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dendritic_distance.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/notebook.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/notebook.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/data_io.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/data_io.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/default_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/default_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/helper_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/helper_functions.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -31,7 +22,7 @@
         <entry file="file://$PROJECT_DIR$/scripts/notebook.ipynb">
           <provider selected="true" editor-type-id="ipnb-editor">
             <state>
-              <selected id="13" />
+              <selected id="10" />
             </state>
           </provider>
         </entry>
@@ -48,20 +39,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/dendritic_distance.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="690">
-              <caret line="49" column="58" selection-start-line="49" selection-start-column="33" selection-end-line="49" selection-end-column="58" />
-              <folding>
-                <element signature="e#0#38#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="30">
+              <caret line="2" column="13" lean-forward="true" selection-start-line="2" selection-end-line="3" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/config.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="2" column="112" selection-start-line="2" selection-start-column="112" selection-end-line="2" selection-end-column="112" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/data_io.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="24" selection-start-line="5" selection-start-column="24" selection-end-line="5" selection-end-column="24" />
+            <state relative-caret-position="183">
+              <caret line="186" column="81" selection-start-line="186" selection-start-column="81" selection-end-line="186" selection-end-column="81" />
             </state>
           </provider>
         </entry>
@@ -69,8 +66,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/helper_functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3855">
-              <caret line="259" selection-start-line="259" selection-end-line="259" />
+            <state relative-caret-position="-1865">
+              <caret line="4" column="29" selection-start-line="4" selection-start-column="29" selection-end-line="4" selection-end-column="29" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -87,6 +84,12 @@
       <find>sanity</find>
       <find>ax.scatter</find>
       <find>cfg</find>
+      <find>projection_tif</find>
+      <find>collect_images_at_path</find>
+      <find>save_list</find>
+      <find>processed</find>
+      <find>roi_to</find>
+      <find>center</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -95,15 +98,16 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/src/default_config.py" />
         <option value="$PROJECT_DIR$/scripts/dendritic_distance.py" />
+        <option value="$PROJECT_DIR$/src/config.py" />
         <option value="$PROJECT_DIR$/src/helper_functions.py" />
         <option value="$PROJECT_DIR$/scripts/notebook.ipynb" />
-        <option value="$PROJECT_DIR$/src/default_config.py" />
         <option value="$PROJECT_DIR$/src/data_io.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
+  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
     <option name="width" value="1280" />
     <option name="height" value="800" />
   </component>
@@ -208,6 +212,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19142176" />
       <window_info id="Structure" order="1" weight="0.25" />
@@ -228,13 +233,6 @@
     </layout>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/scripts/notebook.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/default_config.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
@@ -244,18 +242,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/dendritic_distance.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
-          <caret line="49" column="58" selection-start-line="49" selection-start-column="33" selection-end-line="49" selection-end-column="58" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="30">
+          <caret line="2" column="13" lean-forward="true" selection-start-line="2" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/notebook.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="10" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/helper_functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3855">
-          <caret line="259" selection-start-line="259" selection-end-line="259" />
+        <state relative-caret-position="-1865">
+          <caret line="4" column="29" selection-start-line="4" selection-start-column="29" selection-end-line="4" selection-end-column="29" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -264,8 +266,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/data_io.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="24" selection-start-line="5" selection-start-column="24" selection-end-line="5" selection-end-column="24" />
+        <state relative-caret-position="183">
+          <caret line="186" column="81" selection-start-line="186" selection-start-column="81" selection-end-line="186" selection-end-column="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="2" column="112" selection-start-line="2" selection-start-column="112" selection-end-line="2" selection-end-column="112" />
         </state>
       </provider>
     </entry>

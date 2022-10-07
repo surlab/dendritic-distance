@@ -1,6 +1,7 @@
 *.egg-info
 data
 config.py
+.idea/*.xml
 
 
 # Byte-compiled / optimized / DLL files

@@ -1,5 +1,5 @@
 # dendritic_distance
-Compute the distances between spines using spine ROIs and the average projection tiff. Currently requires annotation of the dendrite, but certainly an algorithm could be implemented to replace this in the future. 
+Compute the distance between pairs of spines captured in a single field of view for different types of distance - both dednritic path following distance, and euclidian "as the crow flies" distance." It is currently intended for planar images, but could be adapted to Z stacks and distance in 3d space in the future. Currently requires annotation of the dendrite, but certainly an algorithm could be implemented to replace this in the future. 
 
 
 ## Installation instructions

@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.spatial import distance_matrix
 
+from src import data_io as io
 
 def endpoints(xs, ys):
     start_coords = np.array((xs[0], ys[0]))
@@ -208,9 +209,13 @@ class Dendrite_segment:
 class Spine:
     def __init__(self, spine_roi, spine_dendrite_roi, dendrite_segment_rois):
 
+        spine_roi = io.convert_roi_to_polygon(spine_roi)
+        spine_dendrite_roi = io.convert_roi_to_polygon(spine_dendrite_roi)
+
         self.parent_dendritic_segment, self.dendrite_residual = find_dendritic_segment(
             spine_dendrite_roi, dendrite_segment_rois
         )
+
 
         self.spine_roi = roi_to_array(spine_roi["x"], spine_roi["y"])
         self.spine_center_xy = np.mean(self.spine_roi, axis=1)

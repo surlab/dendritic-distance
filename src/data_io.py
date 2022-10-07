@@ -43,7 +43,7 @@ def get_paths_from_data_path(data_path):
         if "dend" in path and ("tif" not in path):
             if not (shaft_roi_path):
                 shaft_roi_path = path
-        elif not (spine_roi_path) and ".zip" in path:
+        elif (not (spine_roi_path) and ".zip" in path) and ('old' not in path):
             spine_roi_path = path
 
     try:
@@ -171,12 +171,30 @@ def plot_dendrite_rois(dend_rois, ax=None, legend=False, invert=False):
             y = roi["top"] + roi["height"] / 2
             ax.scatter(x,invert*y, marker="o", color=color) #TODO change the size of this/actually plot the oval
         else:
+            roi = convert_roi_to_polygon(roi)
             color = '0'
             ax.plot(np.array(roi['x']), invert*np.array(roi['y']), color=color)
     ax.set_aspect("equal", adjustable="box")
     if legend:
         custom_legend(ax, color_list, label_list)
     return fig, ax
+
+def convert_roi_to_polygon(roi):
+    if "x" in roi and 'y' in roi:
+        pass#    segment_data["x"], segment_data["y"]
+    elif 'freehand' in roi['type']:
+        try:
+            center = (np.mean([roi['ex1'], roi['ex2']]), [roi['ey1'], roi['ey2']])
+            roi['x'] = [roi['ex1'], roi['ex2']]
+            roi['y'] = [roi['ey1'], roi['ey2']]
+        except KeyError as E:
+            for key, value in roi.items():
+                print(key, value)
+    else:
+        for key, value in roi.items():
+            print(key, value)
+
+    return roi
 
 def custom_legend(ax, color_list, label_list):
     legend_elements = [
@@ -276,10 +294,10 @@ def plot_example_distances(dmats, spines, ax=None):
     plt.legend()
     return fig, ax
 
-def overlay_plot(projection_tif, all_segments, spines, dmats, ax=None):
+def overlay_plot(tiff_in, all_segments, spines, dmats, ax=None):
     fig, ax = new_ax(ax)
 
-    projection_tif(projection_tif, ax)
+    projection_tif(tiff_in, ax)
     plot_dendrite(all_segments, ax)
     plot_spines(spines, ax)
     plot_example_distances(dmats, spines, ax)
@@ -303,13 +321,13 @@ def save_plot(fig, current_data_dir):
     file_path = os.path.join(current_data_dir, cfg.subfolder_name, file_name)
     fig.savefig(file_path)
 
-    if cfg.collect_images_at_path:
+    if cfg.collect_summary_at_path:
         cell_dir, FOV_name = os.path.split(current_data_dir)
         _, cell_name = os.path.split(cell_dir)
         file_name = cell_name + "_" + FOV_name + "_annotated_dendrite.png"
-        if not (os.path.isdir(cfg.collect_images_at_path)):
-            os.mkdir(cfg.collect_images_at_path)
-        file_path = os.path.join(cfg.collect_images_at_path, file_name)
+        if not (os.path.isdir(cfg.collect_summary_at_path)):
+            os.mkdir(cfg.collect_summary_at_path)
+        file_path = os.path.join(cfg.collect_summary_at_path, file_name)
         fig.savefig(file_path)
 
 
@@ -427,10 +445,10 @@ def save_summary_plot(stat_dict, name=""):
         json.dump(check_path_dict, f, indent=4)
 
 
-def save_list(**kwargs):
+def save_named_iterable_to_json(**kwargs):
     for key, value in kwargs.items():
         timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
-        file_name = key + "_check_directories_" + timestamp + ".json"
+        file_name = key +'_' + timestamp + ".json"
         summary_path = os.path.join(cfg.collect_summary_at_path, "summary_plots")
         file_path = os.path.join(summary_path, file_name)
         if not (os.path.isdir(summary_path)):
