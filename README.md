@@ -11,7 +11,7 @@ Compute the distance between pairs of spines captured in a single field of view 
 ```bash
 cd ..\documents\code #or similar as relevant for your machine
 git clone git@github.com:GreggHeller1/dendritic_distance.git
-cd phy
+cd dendritic_distance
 conda env create -f environment.yml
 Conda activate dendritic_distance
 pip install read_roi
