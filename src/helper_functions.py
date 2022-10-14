@@ -35,6 +35,8 @@ def initialize_dendrite(shaft_rois):
         # pick the starting segment
         next_branch_key = next(iter(unassigned_branch_regions))
         next_branch_region = unassigned_branch_regions.pop(next_branch_key)
+
+        #want to make this compatible with rectangles and freehand ovals... should just give them all Xs and ys
         x = next_branch_region["left"] + next_branch_region["width"] / 2
         y = next_branch_region["top"] + next_branch_region["height"] / 2
         branch_center = np.array((x, y))

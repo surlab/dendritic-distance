@@ -184,9 +184,27 @@ def convert_roi_to_polygon(roi):
         pass#    segment_data["x"], segment_data["y"]
     elif 'freehand' in roi['type']:
         try:
-            center = (np.mean([roi['ex1'], roi['ex2']]), [roi['ey1'], roi['ey2']])
-            roi['x'] = [roi['ex1'], roi['ex2']]
-            roi['y'] = [roi['ey1'], roi['ey2']]
+            p1 = np.array([roi['ex1'], roi['ey1']])
+            p2 = np.array([roi['ex2'], roi['ey2']])
+
+            center = np.mean([p1,p2], axis=0)
+            vect = p2-p1
+            distance = np.linalg.norm(vect)
+            def get_orthogonal(vect):
+                x = np.random.randn(len(vect))  # take a random vector
+                x -= x.dot(vect) * vect / np.linalg.norm(vect)**2      # make it orthogonal to k
+                x /= np.linalg.norm(x)  # normalize it
+                return x
+            orth_vect_norm = get_orthogonal(vect)
+
+            orth_vect = orth_vect_norm*roi['aspect_ratio']*distance
+
+            p3 = center+orth_vect
+            p4 = center-orth_vect
+            #we need a way to oder these properly, but I'm gonna forge ahead for now
+
+            roi['x'] = [p1[0], p2[0], p3[0], p4[0]]
+            roi['y'] = [p1[1], p2[1], p3[1], p4[1]]
         except KeyError as E:
             for key, value in roi.items():
                 print(key, value)
