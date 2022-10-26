@@ -23,13 +23,20 @@ def initialize_dendrite(shaft_rois):
     unassigned_segments = list(shaft_rois.keys())
     all_segments = {}
     unassigned_branch_regions = {}
+    fiducials = {}
     for segment_key, segment_data in shaft_rois.items():
         # initialize all the segments here, then we add the branch points later (since we can't possibly know the map beforehand)
+        segment_data = io.convert_roi_to_polygon(segment_data)
         if "line" in segment_data["type"]:
             all_segments[segment_key] = Dendrite_segment(segment_key, segment_data)
             start_coords, end_coords = endpoints(segment_data["x"], segment_data["y"])
         elif "oval" in segment_data["type"]:
             unassigned_branch_regions[segment_key] = segment_data
+            fiducials[segment_key] = segment_data
+        else:
+            pass
+            #fiducials[segment_key] = segment_data
+
 
     def find_branch_point(unassigned_branch_regions, segment_objects):
         # pick the starting segment
@@ -37,16 +44,18 @@ def initialize_dendrite(shaft_rois):
         next_branch_region = unassigned_branch_regions.pop(next_branch_key)
 
         #want to make this compatible with rectangles and freehand ovals... should just give them all Xs and ys
-        x = next_branch_region["left"] + next_branch_region["width"] / 2
-        y = next_branch_region["top"] + next_branch_region["height"] / 2
-        branch_center = np.array((x, y))
+        #x = next_branch_region["left"] + next_branch_region["width"] / 2
+        #y = next_branch_region["top"] + next_branch_region["height"] / 2
+        #branch_center = np.array((x, y))
+        marker_center = next_branch_region['center']
+
 
         dists = []
         endpoint_mapping = []
         segment_mapping = []
         for segment_key, segment_object in segment_objects.items():
             for coords in segment_object.end_points_coords:
-                dists.append(np.linalg.norm(branch_center - coords, axis=0))
+                dists.append(np.linalg.norm(marker_center - coords, axis=0))
                 endpoint_mapping.append(coords)
                 segment_mapping.append(segment_key)
 
@@ -91,7 +100,7 @@ def initialize_dendrite(shaft_rois):
                 end_point = End_point(segment.end_points_coords[i].T, [segment])
                 segment.assign_endpoint_mapping(end_point)
 
-    return all_segments, branch_points
+    return all_segments, branch_points, fiducials
 
 
 def _m_distance(point, line):
@@ -256,21 +265,35 @@ class Spine:
             )
 
         # taken from https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python
+        #will need to figure out how to do the signed version ... need to be taking a consistent direction from the
+        #starting fiducial, and also need to be clever how to adapt it to 3d.
         dot = np.dot(den_vect, spine_vect)
         den_len = np.linalg.norm(den_vect) + 0.001
         spine_len = np.linalg.norm(spine_vect) + 0.001
         angle = dot / den_len / spine_len  # -> cosine of the angle
-        self.neck_angle = np.abs(np.arccos(np.clip(angle, -1, 1)) - np.pi/2)
+        self.relative_neck_angle = np.arccos(np.clip(angle, -1, 1))
+        flat_vect = [[0,0],[1,0]]
+        dot = np.dot(flat_vect, spine_vect)
+        flat_len = np.linalg.norm(flat_vect) + 0.0001
+        angle = dot / flat_len / spine_len  # -> cosine of the angle
+        self.global_neck_angle = np.arccos(np.clip(angle, -1, 1))
 
         self.area_of_roi = 0  # this seems nontrivial... saving for later
         self.estimated_volume = 0
 
         self.sanity_checks = {
             "neck length": self.neck_length,
-            "neck angle": self.neck_angle,
+            "neck angle error": np.abs(self.relative_neck_angle - np.pi/2),
             "dendrite residual length": self.dendrite_residual,
             "spine circumferance length": self.circumferance,
             "spine area": self.area,
+        }
+
+        self.spine_stats = {
+            "center_x": self.spine_center_xy[0],
+            "center_y": self.spine_center_xy[1],
+            "global neck angle (think this is ambiguous too)": self.global_neck_angle,
+            "relative neck angle (wont work)": self.relative_neck_angle
         }
 
     @property
@@ -404,11 +427,16 @@ def recursive_tree_search(prev_dendrite_segment, prev_branch_point, Spine2):
 
 
 def dendritic_distance_matrix(spines):
+    return arbitrary_dend_dmat(spines, spines)
 
-    my_d_mat = np.zeros((len(spines), len(spines)))
-    b_mat = np.zeros((len(spines), len(spines)))
-    for i, Spine1 in enumerate(spines):
-        for j, Spine2 in enumerate(spines):
+def fiducial_dend_mats(spines, fiducials):
+    return arbitrary_dend_dmat(spines, fiducials)
+
+def arbitrary_dend_dmat(spines1, spines2):
+    my_d_mat = np.zeros((len(spines1), len(spines2)))
+    b_mat = np.zeros((len(spines1), len(spines2)))
+    for i, Spine1 in enumerate(spines1):
+        for j, Spine2 in enumerate(spines2):
             dist_along_dend, through_branch = dist_between_2_spines(Spine1, Spine2)
             my_d_mat[i, j] = dist_along_dend
             b_mat[i, j] = through_branch
@@ -438,3 +466,4 @@ def euclidian_dmats(spines, visual=False):
             plots[i].title.set_text(new_key)
 
     return spine_dmats
+

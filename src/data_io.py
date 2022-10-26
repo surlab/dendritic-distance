@@ -12,7 +12,6 @@ except ImportError as E:
 from read_roi import read_roi_file, read_roi_zip
 import os
 import PIL
-import glob
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -32,37 +31,21 @@ def readfile(path):
         lines = f.read()
         print(lines)
 
+### for kyle
 def get_paths_from_data_path(data_path):
+    return cfg.get_paths_from_data_path(data_path)
 
-    spine_roi_path = None
-    shaft_roi_path = None
-
-    rois_zip_path = os.path.join(data_path, "*.*")
-    rois_zip_path = glob.glob(rois_zip_path)
-    for path in rois_zip_path:
-        if "dend" in path and ("tif" not in path):
-            if not (shaft_roi_path):
-                shaft_roi_path = path
-        elif (not (spine_roi_path) and ".zip" in path) and ('old' not in path):
-            spine_roi_path = path
-
-    try:
-        try_path = os.path.join(data_path, "*stabilized.tif")
-        projection_tif_path = glob.glob(try_path)[0]
-    except Exception as E:
-        try_path = os.path.join(data_path, "*.tif")
-        projection_tif_path = glob.glob(try_path)[0]
-
-    return spine_roi_path, projection_tif_path, shaft_roi_path
 
 
 def load_all(data_path):
 
-    rois_zip_path, projection_tif_path, shaft_roi_path = get_paths_from_data_path(
+    rois_zip_paths, projection_tif_path, shaft_roi_path = get_paths_from_data_path(
         data_path
     )
    # print(rois_zip_path, projection_tif_path, shaft_roi_path)
-    kyle_rois = _read_roi(rois_zip_path)
+    kyle_rois = {}
+    for rois_zip_path in rois_zip_paths:
+        kyle_rois.update(_read_roi(rois_zip_path))
 
     projection_tif = PIL.Image.open(projection_tif_path)
     shaft_roi = None
@@ -83,17 +66,21 @@ def _read_roi(roi_path):
 def seperate_kyle_rois(kyle_rois):
     spine_rois = []
     dend_rois = []
+    other_rois = []
     counter = 0
     for name, roi in kyle_rois.items():
         # plt.plot(roi['x'], roi['y'], color=color_list[counter+1])
-        if counter == 0:
+        if 'spine' in cfg.roi_order[counter].lower():
             spine_rois.append(roi)
-        if counter == 2:
-            counter = 0
+        elif 'dendrite' in cfg.roi_order[counter].lower():
             dend_rois.append(roi)
         else:
+            other_rois.append(roi)
+        if counter == len(cfg.roi_order)-1:
+            counter = 0
+        else:
             counter += 1
-    return spine_rois, dend_rois
+    return spine_rois, dend_rois, other_rois
 
 
 ################
@@ -181,7 +168,12 @@ def plot_dendrite_rois(dend_rois, ax=None, legend=False, invert=False):
 
 def convert_roi_to_polygon(roi):
     if "x" in roi and 'y' in roi:
+        roi['center'] = np.array(np.mean(roi["x"]), np.mean(roi["y"]))
         pass#    segment_data["x"], segment_data["y"]
+    elif 'oval' in roi['type']:
+        x = roi["left"] + roi["width"] / 2
+        y = roi["top"] + roi["height"] / 2
+        roi['center'] = np.array((x, y))
     elif 'freehand' in roi['type']:
         try:
             p1 = np.array([roi['ex1'], roi['ey1']])
@@ -190,21 +182,24 @@ def convert_roi_to_polygon(roi):
             center = np.mean([p1,p2], axis=0)
             vect = p2-p1
             distance = np.linalg.norm(vect)
+            print('v1: ', distance)
             def get_orthogonal(vect):
                 x = np.random.randn(len(vect))  # take a random vector
                 x -= x.dot(vect) * vect / np.linalg.norm(vect)**2      # make it orthogonal to k
                 x /= np.linalg.norm(x)  # normalize it
                 return x
             orth_vect_norm = get_orthogonal(vect)
-
-            orth_vect = orth_vect_norm*roi['aspect_ratio']*distance
-
+            print('orth norm: ', np.linalg.norm(orth_vect_norm))
+            orth_vect = orth_vect_norm*(distance*roi['aspect_ratio'])/2
+            print('orth full: ', np.linalg.norm(orth_vect))
             p3 = center+orth_vect
             p4 = center-orth_vect
             #we need a way to oder these properly, but I'm gonna forge ahead for now
 
-            roi['x'] = [p1[0], p2[0], p3[0], p4[0]]
-            roi['y'] = [p1[1], p2[1], p3[1], p4[1]]
+            roi['x'] = [p1[0], p3[0], p2[0], p4[0], p1[0]]
+            roi['y'] = [p1[1], p3[1], p2[1], p4[1], p1[1]]
+            roi['center'] = np.array(center)
+            roi['type'] = 'freehand_oval'
         except KeyError as E:
             for key, value in roi.items():
                 print(key, value)
@@ -239,13 +234,12 @@ def plot_kyle_rois(kyle_rois, ax=None, legend=False, invert=False):
         invert=1
     color_list = ['g', 'r', 'c']
     label_list = ['annotated spine', 'annotated background', 'annotated dendrite']
+    split_rois = seperate_kyle_rois(kyle_rois)
     counter = 0
-    for name, roi in kyle_rois.items():
-        ax.plot(np.array(roi['x']), invert*np.array(roi['y']), color=color_list[counter])
-        if counter ==2:
-            counter = 0
-        else:
-            counter+=1
+    for idx, roi_list in enumerate(split_rois):
+        for roi in roi_list:
+            ax.plot(np.array(roi['x']), invert*np.array(roi['y']), color=color_list[idx])
+
     ax.set_aspect("equal", adjustable="box")
     if legend:
         custom_legend(ax, color_list, label_list)
@@ -332,7 +326,7 @@ def make_and_save_plot(current_data_dir, all_segments, spines, dmats):
 def save_plot(fig, current_data_dir):
 
     # save it local with the other data
-    file_name = "annotated_dendrite.png"
+    file_name = "annotated_dendrite.svg"
     file_dir = os.path.join(current_data_dir, cfg.subfolder_name)
     if not (os.path.isdir(file_dir)):
         os.mkdir(file_dir)
@@ -342,7 +336,7 @@ def save_plot(fig, current_data_dir):
     if cfg.collect_summary_at_path:
         cell_dir, FOV_name = os.path.split(current_data_dir)
         _, cell_name = os.path.split(cell_dir)
-        file_name = cell_name + "_" + FOV_name + "_annotated_dendrite.png"
+        file_name = cell_name + "_" + FOV_name + "_annotated_dendrite.svg"
         if not (os.path.isdir(cfg.collect_summary_at_path)):
             os.mkdir(cfg.collect_summary_at_path)
         file_path = os.path.join(cfg.collect_summary_at_path, file_name)
@@ -364,7 +358,7 @@ def save_den_roi(dendrite_roi, current_data_dir):
 
 def save_stem_stats(current_data_dir, **kwargs):
     DF = pd.DataFrame(kwargs)
-    file_name = "stem_stats.csv"
+    file_name = "spine_stats.csv"
     file_dir = os.path.join(current_data_dir, cfg.subfolder_name)
     if not (os.path.isdir(file_dir)):
         os.mkdir(file_dir)
