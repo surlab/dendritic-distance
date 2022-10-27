@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.spatial import distance_matrix
+import math
 
 from src import data_io as io
 
@@ -34,8 +35,7 @@ def initialize_dendrite(shaft_rois):
             unassigned_branch_regions[segment_key] = segment_data
             fiducials[segment_key] = segment_data
         else:
-            pass
-            #fiducials[segment_key] = segment_data
+            fiducials[segment_key] = segment_data
 
 
     def find_branch_point(unassigned_branch_regions, segment_objects):
@@ -227,13 +227,18 @@ class Spine:
             spine_dendrite_roi, dendrite_segment_rois
         )
 
+        self.source_file = spine_roi['source_file']
+        self.name = spine_roi['name']
+
 
         self.spine_roi = roi_to_array(spine_roi["x"], spine_roi["y"])
         self.spine_center_xy = np.mean(self.spine_roi, axis=1)
 
+        #if cfg.neck_source=='center':
         min_dist, self.spine_neck_idx = minimum_distance(
             self.spine_center_xy, self.parent_dendritic_segment.coords
         )
+        #elif cfg.neck_source=='nearest':
         # <<<<<<<<<<<<<<<<<<
         # maybe this should be minimizing the pairwise distance on both end?
         # although this might introduce as many errors as it fixes... need to look at examples
@@ -267,16 +272,25 @@ class Spine:
         # taken from https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python
         #will need to figure out how to do the signed version ... need to be taking a consistent direction from the
         #starting fiducial, and also need to be clever how to adapt it to 3d.
-        dot = np.dot(den_vect, spine_vect)
-        den_len = np.linalg.norm(den_vect) + 0.001
-        spine_len = np.linalg.norm(spine_vect) + 0.001
-        angle = dot / den_len / spine_len  # -> cosine of the angle
-        self.relative_neck_angle = np.arccos(np.clip(angle, -1, 1))
-        flat_vect = [[0,0],[1,0]]
-        dot = np.dot(flat_vect, spine_vect)
-        flat_len = np.linalg.norm(flat_vect) + 0.0001
-        angle = dot / flat_len / spine_len  # -> cosine of the angle
-        self.global_neck_angle = np.arccos(np.clip(angle, -1, 1))
+        #dot = np.dot(den_vect, spine_vect)
+        #den_len = np.linalg.norm(den_vect) + 0.001
+        #spine_len = np.linalg.norm(spine_vect) + 0.001
+        #angle = dot / den_len / spine_len  # -> cosine of the angle
+        #self.relative_neck_angle = np.arccos(np.clip(angle, -1, 1))
+        #flat_vect = [[0,0],[1,0]]
+        #dot = np.dot(flat_vect, spine_vect)
+        #flat_len = np.linalg.norm(flat_vect) + 0.0001
+        #angle = dot / flat_len / spine_len  # -> cosine of the angle
+        #self.global_neck_angle = np.arccos(np.clip(angle, -1, 1))
+
+        #from https://stackoverflow.com/questions/2150050/finding-signed-angle-between-vectors
+        def get_signed_angle_2d(a, b):
+            angle = math.atan2( a[0]*b[1] - a[1]*b[0], a[0]*b[0] + a[1]*b[1])
+            return angle
+        self.relative_neck_angle = get_signed_angle_2d(spine_vect, den_vect)
+        flat_vect = np.array([1,0])
+        self.global_neck_angle = get_signed_angle_2d(spine_vect, flat_vect)
+
 
         self.area_of_roi = 0  # this seems nontrivial... saving for later
         self.estimated_volume = 0
@@ -292,8 +306,8 @@ class Spine:
         self.spine_stats = {
             "center_x": self.spine_center_xy[0],
             "center_y": self.spine_center_xy[1],
-            "global neck angle (think this is ambiguous too)": self.global_neck_angle,
-            "relative neck angle (wont work)": self.relative_neck_angle
+            "global neck angle": self.global_neck_angle,
+            "relative neck angle": self.relative_neck_angle
         }
 
     @property

@@ -6,8 +6,9 @@ import traceback
 import logging
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 #logger.setLevel(logging.ERROR)
-logger.setLevel(logging.CRITICAL)
+#logger.setLevel(logging.CRITICAL)
 
 def main():
     globals = {
@@ -53,6 +54,9 @@ def main_2(current_data_dir, globals):
                             spines = []
                             sanity_checks = {}
                             spine_stats = {}
+                            spine_mapping = {}
+                            spine_mapping['source_file'] = []
+                            spine_mapping['roi_name'] = []
                             for spine_roi, dend_roi in zip(spine_rois, dend_rois):
                                 this_spine = hf.Spine(spine_roi, dend_roi, all_segments)
                                 spines.append(this_spine)
@@ -64,6 +68,8 @@ def main_2(current_data_dir, globals):
                                     if not (spine_stat in spine_stats):
                                         spine_stats[spine_stat] = []
                                     spine_stats[spine_stat].append(value)
+                                spine_mapping['source_file'].append(this_spine.source_file)
+                                spine_mapping['roi_name'].append(this_spine.name)
 
 
                             fiducials = []
@@ -110,9 +116,10 @@ def main_2(current_data_dir, globals):
                                     check
                                 ]
 
-                            stat_dict = {**spine_stats, **sanity_checks}
+                            stat_dict = {**spine_stats, **sanity_checks, **spine_mapping}
 
-                            io.save_stem_stats(current_data_dir, **stat_dict)
+                            io.save_stats(current_data_dir, "spine_stats.csv", **stat_dict)
+                            #io.save_stem_stats(current_data_dir, "spine_mapping.csv" ,**spine_mapping)
                             globals['processed'].append(current_data_dir)
                         else:
                             globals['missing_annotation'].append(current_data_dir)

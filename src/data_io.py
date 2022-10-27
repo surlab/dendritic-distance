@@ -36,7 +36,6 @@ def get_paths_from_data_path(data_path):
     return cfg.get_paths_from_data_path(data_path)
 
 
-
 def load_all(data_path):
 
     rois_zip_paths, projection_tif_path, shaft_roi_path = get_paths_from_data_path(
@@ -44,13 +43,24 @@ def load_all(data_path):
     )
    # print(rois_zip_path, projection_tif_path, shaft_roi_path)
     kyle_rois = {}
+    def load_roi(rois_zip_path):
+        roi_dict = _read_roi(rois_zip_path)
+        roi_filename = os.path.split(rois_zip_path)[1]
+        roi_dict = add_source_file(roi_dict, roi_filename)
+        return roi_dict
+
+    def add_source_file(roi_dict, roi_filename):
+        for key in roi_dict.keys():
+            roi_dict[key]['source_file'] = roi_filename
+        return roi_dict
+
     for rois_zip_path in rois_zip_paths:
-        kyle_rois.update(_read_roi(rois_zip_path))
+        kyle_rois.update(load_roi(rois_zip_path))
 
     projection_tif = PIL.Image.open(projection_tif_path)
     shaft_roi = None
     if shaft_roi_path:
-        shaft_roi = _read_roi(shaft_roi_path)
+        shaft_roi = load_roi(shaft_roi_path)
 
     return kyle_rois, projection_tif, shaft_roi
 
@@ -154,13 +164,14 @@ def plot_dendrite_rois(dend_rois, ax=None, legend=False, invert=False):
             ax.plot(np.array(roi['x']), invert*np.array(roi['y']), color=color)
         elif "oval" in roi["type"]:
             color= color_list[1]
-            x = roi["left"] + roi["width"] / 2
-            y = roi["top"] + roi["height"] / 2
-            ax.scatter(x,invert*y, marker="o", color=color) #TODO change the size of this/actually plot the oval
+            #x = roi["left"] + roi["width"] / 2
+            #y = roi["top"] + roi["height"] / 2
+            roi = convert_roi_to_polygon(roi)
+            ax.scatter(roi['center'][0],invert*roi['center'][1], marker="o", color=color) #TODO change the size of this/actually plot the oval
         else:
             roi = convert_roi_to_polygon(roi)
             color = '0'
-            ax.plot(np.array(roi['x']), invert*np.array(roi['y']), color=color)
+            ax.plot(roi['center'][0],invert*roi['center'][1], color=color)
     ax.set_aspect("equal", adjustable="box")
     if legend:
         custom_legend(ax, color_list, label_list)
@@ -168,9 +179,11 @@ def plot_dendrite_rois(dend_rois, ax=None, legend=False, invert=False):
 
 def convert_roi_to_polygon(roi):
     if "x" in roi and 'y' in roi:
-        roi['center'] = np.array(np.mean(roi["x"]), np.mean(roi["y"]))
-        pass#    segment_data["x"], segment_data["y"]
+        roi['center'] = np.array((np.mean(roi["x"]), np.mean(roi["y"])))
+        #segment_data["x"], segment_data["y"]
     elif 'oval' in roi['type']:
+        #for key, value in roi.items():
+        #    print(key, value)
         x = roi["left"] + roi["width"] / 2
         y = roi["top"] + roi["height"] / 2
         roi['center'] = np.array((x, y))
@@ -182,16 +195,13 @@ def convert_roi_to_polygon(roi):
             center = np.mean([p1,p2], axis=0)
             vect = p2-p1
             distance = np.linalg.norm(vect)
-            print('v1: ', distance)
             def get_orthogonal(vect):
                 x = np.random.randn(len(vect))  # take a random vector
                 x -= x.dot(vect) * vect / np.linalg.norm(vect)**2      # make it orthogonal to k
                 x /= np.linalg.norm(x)  # normalize it
                 return x
             orth_vect_norm = get_orthogonal(vect)
-            print('orth norm: ', np.linalg.norm(orth_vect_norm))
             orth_vect = orth_vect_norm*(distance*roi['aspect_ratio'])/2
-            print('orth full: ', np.linalg.norm(orth_vect))
             p3 = center+orth_vect
             p4 = center-orth_vect
             #we need a way to oder these properly, but I'm gonna forge ahead for now
@@ -202,10 +212,19 @@ def convert_roi_to_polygon(roi):
             roi['type'] = 'freehand_oval'
         except KeyError as E:
             for key, value in roi.items():
-                print(key, value)
+                print('Here:', key, value)
+    elif 'line' in roi['type']:
+        #this will only grab pure lines that don't already have x,y coordinates, just x1,y1,x2,y2, nedpoints
+        p1 = np.array([roi['x1'], roi['y1']])
+        p2 = np.array([roi['x2'], roi['y2']])
+        center = np.mean([p1,p2], axis=0)
+        roi['x'] = [p1[0], center[0], p2[0]]
+        roi['y'] = [p1[1], center[1], p2[1]]
+        roi['center'] = np.array(center)
+        roi['type'] = 'fiducial'
     else:
         for key, value in roi.items():
-            print(key, value)
+            print('Or here: ', key, value)
 
     return roi
 
@@ -238,6 +257,7 @@ def plot_kyle_rois(kyle_rois, ax=None, legend=False, invert=False):
     counter = 0
     for idx, roi_list in enumerate(split_rois):
         for roi in roi_list:
+            roi = convert_roi_to_polygon(roi)
             ax.plot(np.array(roi['x']), invert*np.array(roi['y']), color=color_list[idx])
 
     ax.set_aspect("equal", adjustable="box")
@@ -256,10 +276,14 @@ def plot_spines(spines, ax=None):
             spine.spine_center_xy[0], spine.spine_center_xy[1], marker="x", color="y"
         )
         # plot line from center to dendrite
+        if spine.relative_neck_angle > 0:
+            color = 'y'
+        else:
+            color='chartreuse'
         ax.plot(
             [spine.spine_neck_xy[0], spine.spine_center_xy[0]],
             [spine.spine_neck_xy[1], spine.spine_center_xy[1]],
-            color="y",
+            color=color,
         )
         # plot the location of the spine stem and the synapse
         ax.scatter(
@@ -356,9 +380,8 @@ def save_den_roi(dendrite_roi, current_data_dir):
     np.savetxt(file_path, array, delimiter=",", fmt=cfg.precision)
 
 
-def save_stem_stats(current_data_dir, **kwargs):
+def save_stats(current_data_dir, file_name, **kwargs):
     DF = pd.DataFrame(kwargs)
-    file_name = "spine_stats.csv"
     file_dir = os.path.join(current_data_dir, cfg.subfolder_name)
     if not (os.path.isdir(file_dir)):
         os.mkdir(file_dir)
