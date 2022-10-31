@@ -50,9 +50,13 @@ def load_all(data_path):
         return roi_dict
 
     def add_source_file(roi_dict, roi_filename):
-        for key in roi_dict.keys():
-            roi_dict[key]['source_file'] = roi_filename
-        return roi_dict
+        new_roi_dict = {}
+        for key, value in roi_dict.items():
+            new_key = f'{key}_{roi_filename}'
+            new_roi_dict[new_key] = value
+            new_roi_dict[new_key]['source_file'] = roi_filename
+
+        return new_roi_dict
 
     for rois_zip_path in rois_zip_paths:
         kyle_rois.update(load_roi(rois_zip_path))
