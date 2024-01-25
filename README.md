@@ -34,7 +34,7 @@ The code expects to find a directory or tree of nested directories where some th
 1. 1 file whose name includes the string ".zip" and not the string ".dend" that contains the annotations of rois for each spine head and corresponding nearest dendritic segment
 1. A file whose name includes the string '.tif' that contains the average image from which the ROIs were generated (necessary only to produce QC images, not to compute the distance itself, but this is HIGHLY recomended as a way to validate both the annotations and the algorithm). If there are multiple filenames with '.tif' then the code will preferentially select a tif that includes the string 'stabalized.tif'
 
-For more information on the expected annotations see annotations.md
+For more information on the expected annotations see annotations.md and ROI_selection.pdf
 
 ### Usage steps
 1. Rename "default_config.py" to "config.py" (First time only)
